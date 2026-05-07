@@ -2,13 +2,14 @@ name: FoliaEconomyX
 version: '${project.version}'
 main: com.yourname.foliaeconomyx.FoliaEconomyX
 api-version: '1.21'
+load: STARTUP
 folia-supported: true
-author: YourName
+author: BohdanStepantsov
 description: Advanced multi-currency economy plugin for Folia
-website: https://yourwebsite.com
+website: boda-server.infy.uk
 
-depend: [Vault]
-softdepend: [PlaceholderAPI, LuckPerms]
+softdepend: [Vault, PlaceholderAPI, LuckPerms]
+loadbefore: [MobMoney, BurzhuyPlugin, Jobs, ChestShop, EssentialsX, Towny, mcMMO]
 
 commands:
   money:

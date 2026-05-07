@@ -169,6 +169,8 @@ public class FoliaEconomyX extends JavaPlugin {
         }
         
         vaultProvider = new VaultEconomyProvider(this);
+        
+        // Method 1: Immediate registration with HIGHEST priority
         getServer().getServicesManager().register(
             Economy.class,
             vaultProvider,
@@ -176,8 +178,82 @@ public class FoliaEconomyX extends JavaPlugin {
             ServicePriority.Highest
         );
         
+        // Method 2: Delayed re-registration + reload dependent plugins
+        getServer().getGlobalRegionScheduler().runDelayed(
+            this,
+            task -> {
+                getServer().getServicesManager().register(
+                    Economy.class,
+                    vaultProvider,
+                    this,
+                    ServicePriority.Highest
+                );
+                
+                // Verify what Vault sees
+                org.bukkit.plugin.RegisteredServiceProvider<Economy> rsp = 
+                    getServer().getServicesManager().getRegistration(Economy.class);
+                
+                if (rsp != null) {
+                    Economy eco = rsp.getProvider();
+                    getLogger().info("Vault economy provider: " + eco.getClass().getSimpleName());
+                    
+                    if (eco instanceof VaultEconomyProvider) {
+                        getLogger().info("✓ FoliaEconomyX is the active economy!");
+                        
+                        // Reload plugins that depend on economy
+                        reloadDependentPlugins();
+                    } else {
+                        getLogger().warning("✗ Another economy is active: " + eco.getName());
+                    }
+                } else {
+                    getLogger().severe("✗ No economy provider registered in Vault!");
+                }
+            },
+            20L // 1 second
+        );
+        
+        // Method 3: Periodic check and re-registration
+        getServer().getGlobalRegionScheduler().runAtFixedRate(
+            this,
+            task -> {
+                org.bukkit.plugin.RegisteredServiceProvider<Economy> rsp = 
+                    getServer().getServicesManager().getRegistration(Economy.class);
+                
+                if (rsp == null || !(rsp.getProvider() instanceof VaultEconomyProvider)) {
+                    getLogger().warning("Economy provider changed! Re-registering FoliaEconomyX...");
+                    getServer().getServicesManager().register(
+                        Economy.class,
+                        vaultProvider,
+                        this,
+                        ServicePriority.Highest
+                    );
+                }
+            },
+            600L,  // Start after 30 seconds
+            1200L  // Check every 60 seconds
+        );
+        
         getLogger().info("Successfully hooked into Vault!");
         return true;
+    }
+    
+    private void reloadDependentPlugins() {
+        String[] pluginsToReload = {"MobMoney", "BurzhuyPlugin"};
+        
+        for (String pluginName : pluginsToReload) {
+            org.bukkit.plugin.Plugin plugin = getServer().getPluginManager().getPlugin(pluginName);
+            
+            if (plugin != null && !plugin.isEnabled()) {
+                getLogger().info("Attempting to enable " + pluginName + "...");
+                getServer().getPluginManager().enablePlugin(plugin);
+                
+                if (plugin.isEnabled()) {
+                    getLogger().info("✓ Successfully enabled " + pluginName + "!");
+                } else {
+                    getLogger().warning("✗ Failed to enable " + pluginName);
+                }
+            }
+        }
     }
 
     private void registerCommands() {
