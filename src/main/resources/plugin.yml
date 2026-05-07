@@ -1,111 +1,59 @@
-name: FoliaEconomyX
-version: '${project.version}'
-main: com.yourname.foliaeconomyx.FoliaEconomyX
+name: BurzhuyPlugin
+main: me.yourname.burzhuy.BurzhuyPlugin
+version: 2.0.4
 api-version: '1.21'
-folia-supported: true
-author: YourName
-description: Advanced multi-currency economy plugin for Folia
-website: https://yourwebsite.com
-
+author: BohdanStepantsov
 depend: [Vault]
-softdepend: [PlaceholderAPI, LuckPerms]
+folia-supported: true
 
 commands:
-  money:
-    description: Check your balance
-    usage: /money [currency] [player]
-    aliases: [balance, bal]
-    permission: foliaeconomyx.money
-    
-  pay:
-    description: Send money to another player
-    usage: /pay <player> <amount> [currency]
-    permission: foliaeconomyx.pay
-    
-  eco:
-    description: Economy admin commands
-    usage: /eco <give|take|set|reset> <player> <amount> [currency]
-    permission: foliaeconomyx.admin
-    aliases: [economy]
-    
-  baltop:
-    description: View richest players
-    usage: /baltop [currency] [page]
-    aliases: [balancetop, topbalance]
-    permission: foliaeconomyx.baltop
-    
-  currency:
-    description: Currency management
-    usage: /currency <list|info|convert>
-    aliases: [currencies, cur]
-    permission: foliaeconomyx.currency
-    
-  ecomirgrate:
-    description: Migrate data from other plugins
-    usage: /ecomigrate <essentials|cmi|playerpoints>
-    permission: foliaeconomyx.migrate
-    
-  ecohistory:
-    description: View transaction history
-    usage: /ecohistory [player] [page]
-    permission: foliaeconomyx.history
+  buyer:
+    description: Open the buyer menu
+    usage: /buyer
+    aliases: [shop, merchant]
+  upgradebuyer:
+    description: Open slot upgrade menu
+    usage: /upgradebuyer
+  refreshlots:
+    description: Refresh player lots (admin)
+    usage: /refreshlots <player>
+    permission: burzhuy.admin
+  slotupgrademenu:
+    description: Open slot upgrade menu
+    usage: /slotupgrademenu
+  multiplierquest:
+    description: Open multiplier quest menu
+    usage: /multiplierquest
+    aliases: [mquest, quests]
 
 permissions:
-  foliaeconomyx.*:
-    description: All permissions
+  burzhuy.admin:
+    description: Admin permission for refreshing lots
     default: op
-    children:
-      foliaeconomyx.money: true
-      foliaeconomyx.money.others: true
-      foliaeconomyx.pay: true
-      foliaeconomyx.pay.donate: true
-      foliaeconomyx.baltop: true
-      foliaeconomyx.currency: true
-      foliaeconomyx.admin: true
-      foliaeconomyx.migrate: true
-      foliaeconomyx.history: true
-      foliaeconomyx.history.others: true
-      
-  foliaeconomyx.money:
-    description: Check your own balance
+  burzhuy.slotupgrademenu:
+    description: Open slot upgrade menu
     default: true
-    
-  foliaeconomyx.money.others:
-    description: Check other players' balance
-    default: op
-    
-  foliaeconomyx.pay:
-    description: Send regular currency
+  burzhuy.buyer:
+    description: Open buyer menu
     default: true
-    
-  foliaeconomyx.pay.donate:
-    description: Send donate currency (with confirmations)
+  burzhuy.multiplierquest:
+    description: Open multiplier quest menu
     default: true
-    
-  foliaeconomyx.pay.bypass:
-    description: Bypass donate currency confirmations
-    default: op
-    
-  foliaeconomyx.baltop:
-    description: View baltop
+  burzhuy.maxslots.14:
+    description: Maximum 14 slots
+    default: false
+  burzhuy.maxslots.16:
+    description: Maximum 16 slots
+    default: false
+  burzhuy.maxslots.18:
+    description: Maximum 18 slots
+    default: false
+  burzhuy.maxslots.20:
+    description: Maximum 20 slots
+    default: false
+  burzhuy.maxslots.22:
+    description: Maximum 22 slots
+    default: false
+  burzhuy.maxslots.12:
+    description: Maximum 12 slots (default)
     default: true
-    
-  foliaeconomyx.currency:
-    description: View currency info
-    default: true
-    
-  foliaeconomyx.admin:
-    description: Admin economy commands
-    default: op
-    
-  foliaeconomyx.migrate:
-    description: Migrate from other plugins
-    default: op
-    
-  foliaeconomyx.history:
-    description: View your transaction history
-    default: true
-    
-  foliaeconomyx.history.others:
-    description: View others' transaction history
-    default: op
