@@ -1,0 +1,142 @@
+# FoliaEconomyX v2.0 Messages (English)
+
+prefix: "&8[&6Economy&8]&r "
+
+# Balance Commands
+balance:
+  self: "&aYour balance:"
+  other: "&a%player%'s balance:"
+  
+# Pay Command
+pay:
+  success-sender: "&aYou sent %currency_symbol%%amount% &ato &6%player%"
+  success-receiver: "&aYou received %currency_symbol%%amount% &afrom &6%player%"
+  self-pay: "&cYou cannot pay yourself!"
+  
+  # Donate currency confirmations
+  confirmation-1: "&c⚠️ WARNING! You are transferring DONATE currency!"
+  confirmation-1-details: "&c  %currency_symbol%%amount% &c→ &6%player%"
+  confirmation-1-action: "&eType the command again if you're sure."
+  
+  confirmation-2: "&c⚠️ Are you ABSOLUTELY SURE?"
+  confirmation-2-details: "&cThis is premium currency worth real money!"
+  confirmation-2-action: "&eType again to confirm."
+  
+  confirmation-3: "&c⚠️⚠️ LAST WARNING! ⚠️⚠️"
+  confirmation-3-details: "&cYou CANNOT undo this transaction!"
+  confirmation-3-details-2: "&c%currency_symbol%%amount% &cwill be sent to &6%player% &cPERMANENTLY!"
+  confirmation-3-action: "&eType the command ONE MORE TIME to proceed."
+  
+  confirmation-expired: "&cConfirmation expired. Start over."
+  confirmation-cancelled: "&aTransfer cancelled."
+  
+  cooldown: "&cYou must wait %time% before transferring %currency% again!"
+  
+# Economy Admin Commands
+eco:
+  give: "&aGave %currency_symbol%%amount% &ato &6%player% &a(New balance: %currency_symbol%%balance%&a)"
+  take: "&aTook %currency_symbol%%amount% &afrom &6%player% &a(New balance: %currency_symbol%%balance%&a)"
+  set: "&aSet &6%player%'s &abalance to %currency_symbol%%balance%"
+  reset: "&aReset &6%player%'s &abalance to %currency_symbol%%balance%"
+  reset-all: "&aReset all balances for %count% players!"
+  
+# baltop Command
+baltop:
+  header: "&6&l━━━━━━ Top Balances (%currency%) ━━━━━━"
+  entry: "&e#%rank% &f%player% &7- &a%currency_symbol%%amount%"
+  footer: "&6&l━━━━━━━━━━ Page %page%/%max_page% ━━━━━━━━━━"
+  empty: "&cNo players found in baltop!"
+  updating: "&eUpdating baltop, please wait..."
+  
+# Currency Commands
+currency:
+  list-header: "&6&l━━━━━━ Available Currencies ━━━━━━"
+  list-regular: "&a▸ Regular: &f%currencies%"
+  list-donate: "&c▸ Donate: &f%currencies%"
+  list-entry: "%symbol% %name%"
+  
+  info-header: "&6Currency Info: %currency_symbol% %currency_name%"
+  info-type: "&7Type: %type%"
+  info-symbol: "&7Symbol: %symbol%"
+  info-transfer: "&7Transferable: %transferable%"
+  info-confirmations: "&7Confirmations Required: %confirmations%"
+  info-balance: "&7Your Balance: %currency_symbol%%amount%"
+  
+  convert: "&aConverted %currency_symbol%%amount% to %currency_symbol%%new_amount%"
+  convert-rate: "&7Exchange rate: 1 %from% = %rate% %to%"
+  
+# Migration Commands
+migration:
+  started: "&eStarting migration from %plugin%..."
+  backup-created: "&aBackup created: %file%"
+  migrating-player: "&7Migrating %player%... (%current%/%total%)"
+  completed: "&aSuccessfully migrated %count% players from %plugin%!"
+  failed: "&cMigration failed: %error%"
+  no-data: "&cNo data found in %plugin%"
+  already-migrated: "&eData already migrated from %plugin%. Use &c/ecomigrate %plugin% force &eto override."
+  
+# History Commands
+history:
+  header: "&6&l━━━━━ Transaction History ━━━━━"
+  entry: "&7[%time%] &f%type%: %currency_symbol%%amount% &7%details%"
+  footer: "&6&l━━━━━━━━ Page %page%/%max_page% ━━━━━━━━"
+  empty: "&cNo transaction history found!"
+  types:
+    deposit: "&aDeposit"
+    withdraw: "&cWithdraw"
+    transfer-sent: "&c→ %player%"
+    transfer-received: "&a← %player%"
+    admin-give: "&aAdmin Give"
+    admin-take: "&cAdmin Take"
+    admin-set: "&eAdmin Set"
+  
+# Errors
+error:
+  insufficient-funds: "&cInsufficient funds! You need %currency_symbol%%amount% &cbut only have %currency_symbol%%balance%"
+  invalid-amount: "&cInvalid amount! Must be a positive number."
+  negative-balance: "&cNegative balances are not allowed!"
+  max-balance: "&cMaximum balance exceeded! Limit: %currency_symbol%%max%"
+  max-balance-receiver: "&c%player% would exceed their maximum balance!"
+  player-not-found: "&cPlayer not found!"
+  no-permission: "&cYou don't have permission to do that!"
+  unknown-command: "&cUnknown command! Use &e/eco help"
+  player-only: "&cThis command can only be used by players!"
+  currency-not-found: "&cCurrency '%currency%' not found!"
+  currency-disabled: "&cCurrency '%currency%' is disabled!"
+  transfer-not-allowed: "&cThis currency cannot be transferred!"
+  rate-limit: "&cYou're sending too many commands! Slow down."
+  database-error: "&cDatabase error! Please contact an administrator."
+  cooldown: "&cPlease wait %time% before doing that again!"
+  
+# System Messages
+system:
+  enabled: "&aFoliaEconomyX v%version% has been enabled!"
+  disabled: "&cFoliaEconomyX has been disabled!"
+  reload: "&aConfiguration reloaded!"
+  saving: "&eSaving economy data..."
+  saved: "&aEconomy data saved successfully!"
+  vault-hooked: "&aSuccessfully hooked into Vault!"
+  placeholderapi-hooked: "&aSuccessfully hooked into PlaceholderAPI!"
+  luckperms-hooked: "&aSuccessfully hooked into LuckPerms!"
+  update-available: "&eNew version available: %version% &7(Current: %current%)"
+  update-download: "&eDownload: &b%url%"
+  
+# Discord Webhook Messages (not shown in-game)
+webhook:
+  transfer-title: "💎 Donate Currency Transfer"
+  transfer-description: "**From:** %from%\n**To:** %to%\n**Amount:** %currency_symbol%%amount%\n**Currency:** %currency%\n**Time:** %time%"
+  transfer-color: 15158332  # Red color
+  
+# Time Formatting
+time:
+  seconds: "%s%s"
+  minutes: "%s%m"
+  hours: "%s%h"
+  days: "%s%d"
+  
+# Number Formatting
+numbers:
+  thousand: "K"
+  million: "M"
+  billion: "B"
+  trillion: "T"

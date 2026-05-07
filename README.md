@@ -1,215 +1,251 @@
-# BurzhuyPlugin v2.0.0
+# FoliaEconomyX v2.0 - Advanced Multi-Currency Economy
 
-A comprehensive Minecraft economy plugin with a buyer system, quest mechanics, and multiplier progression. Fully compatible with both Paper and Folia servers.
+## Features Overview
 
-## Features
+### ✅ Implemented (in this archive)
+1. **Multi-Currency System** - Regular & Donate currencies
+2. **Triple Confirmation** - For donate currency transfers  
+3. **Currency Manager** - Full currency management system
+4. **Confirmation Manager** - Tracks pending transfers
+5. **Enhanced Configuration** - Complete config.yml with all options
+6. **Enhanced Messages** - Full messages.yml with localization support
 
-- **Dynamic Buyer System**: Players can sell items to an NPC with randomized lots that refresh automatically
-- **Slot Upgrades**: Expand your trading capacity by purchasing additional slots
-- **Multiplier Quests**: Complete quests to increase your selling multiplier
-- **Auto-Refresh**: Lots automatically shuffle at configurable intervals
-- **Multi-Language Support**: All messages stored in `messages.yml` for easy translation
-- **Folia Compatible**: Works seamlessly on both Paper and Folia servers with region-based threading
+### 📋 Structure Created (you need to implement)
 
-## Requirements
+```
+src/main/java/com/yourname/foliaeconomyx/
+├── FoliaEconomyX.java           ⚠️ TODO: Main plugin class
+├── api/
+│   ├── FoliaEconomyAPI.java     ⚠️ TODO: Public API for developers
+│   └── events/                   ⚠️ TODO: Custom events
+├── currency/
+│   ├── Currency.java             ✅ DONE
+│   ├── CurrencyType.java         ✅ DONE
+│   └── CurrencyManager.java      ✅ DONE
+├── storage/
+│   ├── BalanceStorage.java       ⚠️ TODO: Storage interface
+│   ├── mysql/
+│   │   └── MySQLStorage.java     ⚠️ TODO: MySQL implementation
+│   └── yaml/
+│       └── YamlStorage.java      ⚠️ TODO: YAML implementation
+├── commands/
+│   ├── MoneyCommand.java         ⚠️ TODO: /money command
+│   ├── PayCommand.java           ⚠️ TODO: /pay with confirmations
+│   ├── EcoCommand.java           ⚠️ TODO: /eco admin
+│   ├── BaltopCommand.java        ⚠️ TODO: /baltop command
+│   ├── CurrencyCommand.java      ⚠️ TODO: /currency command
+│   ├── MigrateCommand.java       ⚠️ TODO: /ecomigrate
+│   └── HistoryCommand.java       ⚠️ TODO: /ecohistory
+├── confirmation/
+│   ├── ConfirmationManager.java  ✅ DONE
+│   └── PendingTransfer.java      ✅ DONE
+├── listeners/
+│   └── PlayerListener.java       ⚠️ TODO: Event handlers
+├── placeholders/
+│   └── EconomyExpansion.java     ⚠️ TODO: PlaceholderAPI
+├── migration/
+│   ├── MigrationManager.java     ⚠️ TODO: Migration handler
+│   └── migrators/                ⚠️ TODO: Plugin-specific migrators
+├── webhook/
+│   └── DiscordWebhook.java       ⚠️ TODO: Discord notifications
+└── utils/
+    ├── ConfigManager.java        ⚠️ TODO: Enhanced config handler
+    ├── MessageManager.java       ⚠️ TODO: Multi-language support
+    ├── NumberFormatter.java      ⚠️ TODO: Format large numbers
+    └── UpdateChecker.java        ⚠️ TODO: Check for updates
+```
 
-- Minecraft Server 1.21+
-- Paper or Folia
-- Vault plugin
-- Any economy plugin supported by Vault (e.g., EssentialsX)
+## Implementation Priority
 
-## Installation
+### Phase 1: Core Functionality (Essential)
+1. **FoliaEconomyX.java** - Main plugin initialization
+2. **BalanceStorage interface** - Define storage contract
+3. **MySQLStorage** - Database implementation with HikariCP
+4. **YamlStorage** - File-based fallback
+5. **EconomyManager** - Multi-currency balance management
+6. **VaultEconomyProvider** - Vault integration (default currency only)
 
-1. Download the plugin JAR file
-2. Place it in your server's `plugins` folder
-3. Ensure Vault and an economy plugin are installed
-4. Start/restart your server
-5. Configure `config.yml` and `messages.yml` to your liking
-6. Reload the plugin with `/reload confirm` or restart
+### Phase 2: Commands (Required)
+1. **MoneyCommand** - View balances for all currencies
+2. **PayCommand** - Transfer with confirmation system
+3. **EcoCommand** - Admin commands for all currencies
+4. **BaltopCommand** - Leaderboards per currency
 
-## Configuration
+### Phase 3: Advanced Features
+1. **PlaceholderAPI** - %foliaeconomyx_balance_<currency>%
+2. **TransactionLogger** - Log to database
+3. **HistoryCommand** - View transaction history
+4. **DiscordWebhook** - Notify admins of donate transfers
 
-### Main Config (`config.yml`)
+### Phase 4: Enhancements
+1. **MigrationManager** - Import from other plugins
+2. **LuckPerms integration** - Group-based limits
+3. **bStats** - Usage statistics
+4. **UpdateChecker** - Auto update notifications
+5. **Localization** - Multiple language files
 
+## Key Implementation Notes
+
+### MySQL Storage Structure
+
+```sql
+CREATE TABLE balances (
+    uuid VARCHAR(36) NOT NULL,
+    currency VARCHAR(32) NOT NULL,
+    balance DOUBLE NOT NULL DEFAULT 0,
+    PRIMARY KEY (uuid, currency),
+    INDEX idx_currency (currency),
+    INDEX idx_balance (balance)
+);
+
+CREATE TABLE transactions (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    timestamp BIGINT NOT NULL,
+    type VARCHAR(32) NOT NULL,
+    from_uuid VARCHAR(36),
+    to_uuid VARCHAR(36),
+    currency VARCHAR(32) NOT NULL,
+    amount DOUBLE NOT NULL,
+    balance_after DOUBLE,
+    INDEX idx_from (from_uuid),
+    INDEX idx_to (to_uuid),
+    INDEX idx_currency (currency),
+    INDEX idx_timestamp (timestamp)
+);
+```
+
+### Confirmation System Flow
+
+```java
+// In PayCommand.java
+Currency currency = currencyManager.getCurrency(currencyId);
+
+if (currency.needsConfirmation(amount)) {
+    if (!player.hasPermission("foliaeconomyx.pay.bypass")) {
+        int currentLevel = confirmationManager.getCurrentLevel(player.getUniqueId());
+        
+        if (currentLevel < currency.getRequireConfirmation()) {
+            confirmationManager.addConfirmation(player, target, currencyId, amount, 
+                currency.getRequireConfirmation());
+            
+            // Send confirmation message based on level
+            sendConfirmationMessage(player, currentLevel + 1, currency, amount, target);
+            return;
+        }
+    }
+}
+
+// All confirmations complete, process transfer
+economyManager.transfer(player.getUniqueId(), targetUuid, currencyId, amount);
+```
+
+### PlaceholderAPI Example
+
+```java
+// %foliaeconomyx_balance_dollars%
+// %foliaeconomyx_balance_gems%
+// %foliaeconomyx_baltop_1_name_dollars%
+// %foliaeconomyx_baltop_1_balance_gems%
+```
+
+### API Usage Example
+
+```java
+// For other plugins to use
+FoliaEconomyAPI api = FoliaEconomyX.getAPI();
+
+// Get balance
+double gems = api.getBalance(uuid, "gems");
+
+// Deposit
+api.deposit(uuid, "gems", 100);
+
+// Transfer
+api.transfer(fromUuid, toUuid, "dollars", 500);
+
+// Listen to events
+@EventHandler
+public void onBalanceChange(BalanceChangeEvent event) {
+    Player player = event.getPlayer();
+    String currency = event.getCurrency();
+    double oldBalance = event.getOldBalance();
+    double newBalance = event.getNewBalance();
+}
+```
+
+## Configuration Examples
+
+### Enable MySQL
 ```yaml
-buyer_reset:
-  interval_seconds: 21600 # How often lots refresh (6 hours default)
-  
-multiplier:
-  base: 1.0              # Starting multiplier
-  per_level: 0.4         # Multiplier increase per level
-  max_level: 5           # Maximum multiplier level
-
-upgrade_slot_cost:
-  base: 80000            # Base cost for first slot upgrade
-  per_slot: 10000        # Additional cost per slot owned
+storage:
+  type: mysql
+  mysql:
+    host: localhost
+    port: 3306
+    database: foliaeconomyx
+    username: minecraft
+    password: securepassword
 ```
 
-### Messages (`messages.yml`)
-
-All player-facing messages are in this file. You can translate them to any language by editing the values.
-
-### Quest Configuration
-
-Quests are configured in `config.yml` under `interface.quests`. Each quest has:
-- `name`: Display name
-- `type`: Quest type (MOB_KILL, ITEM_DELIVER, BLOCK_BREAK, etc.)
-- `target`: Target entity/material/dimension
-- `amount`: Number required to complete
-
-## Commands
-
-| Command | Description | Permission |
-|---------|-------------|------------|
-| `/buyer` | Open buyer menu | `burzhuy.buyer` |
-| `/upgradebuyer` | Open slot upgrade menu | `burzhuy.slotupgrademenu` |
-| `/multiplierquest` | Open quest menu | `burzhuy.multiplierquest` |
-| `/refreshlots <player>` | Refresh player's lots (admin) | `burzhuy.admin` |
-
-## Permissions
-
-### Slot Limits
-- `burzhuy.maxslots.12` - 12 slots (default)
-- `burzhuy.maxslots.14` - 14 slots
-- `burzhuy.maxslots.16` - 16 slots
-- `burzhuy.maxslots.18` - 18 slots
-- `burzhuy.maxslots.20` - 20 slots
-- `burzhuy.maxslots.22` - 22 slots
-
-### Menu Access
-- `burzhuy.buyer` - Access buyer menu (default: true)
-- `burzhuy.slotupgrademenu` - Access upgrade menu (default: true)
-- `burzhuy.multiplierquest` - Access quest menu (default: true)
-
-### Admin
-- `burzhuy.admin` - Admin commands (default: op)
-
-## Quest Types
-
-1. **MOB_KILL**: Kill specific entities
-2. **ITEM_DELIVER**: Deliver items to complete
-3. **BLOCK_BREAK**: Mine specific blocks
-4. **ITEM_CRAFT**: Craft specific items
-5. **GET_ITEM**: Obtain specific items
-6. **TRAVEL**: Visit dimensions (Nether/End)
-7. **WALK_DISTANCE**: Walk a certain distance
-8. **VISIT_OCEAN**: Visit ocean biomes
-9. **JUMP**: Jump a number of times
-10. **USE_TOTEM**: Use totems of undying
-11. **DRINK_POTION**: Consume specific potions
-
-## Folia Compatibility
-
-This plugin is designed to work on both Paper and Folia:
-
-- **Paper**: Uses standard Bukkit scheduler
-- **Folia**: Automatically detects Folia and uses region-based scheduling
-- No configuration needed - the plugin adapts automatically
-
-The scheduler adapter ensures:
-- Entity-specific tasks run in the entity's region
-- Global tasks use the global region scheduler
-- Async tasks use the async scheduler
-- No thread safety issues
-
-## API Usage
-
-### Getting Started
-
-```java
-BurzhuyPlugin plugin = (BurzhuyPlugin) Bukkit.getPluginManager().getPlugin("BurzhuyPlugin");
-BuyerDataManager dataManager = plugin.getBuyerDataManager();
+### Add Custom Currency
+```yaml
+currencies:
+  regular:
+    tokens:
+      enabled: true
+      symbol: "🎫"
+      name-singular: "Token"
+      name-plural: "Tokens"
+      starting-balance: 0
+      allow-transfer: true
 ```
 
-### Accessing Player Data
-
-```java
-Player player = // ... get player
-BuyerData data = dataManager.get(player);
-int slots = data.getSlots();
-int multiplierLevel = data.getMultiplierLevel();
+### Discord Webhook
+```yaml
+donate-protection:
+  discord-webhook:
+    enabled: true
+    url: "https://discord.com/api/webhooks/YOUR_ID/YOUR_TOKEN"
+    minimum-amount: 100
 ```
 
-## Development
+## Build Instructions
 
-### Building from Source
+1. Implement missing classes (marked with ⚠️ TODO)
+2. Run `mvn clean package`
+3. Find JAR in `target/FoliaEconomyX-2.0.0.jar`
 
-```bash
-git clone <repository>
-cd BurzhuyPlugin
-mvn clean package
-```
+## Dependencies Included
 
-The compiled JAR will be in `target/BurzhuyPlugin-2.0.0.jar`
+- HikariCP (connection pooling)
+- MySQL Connector
+- PostgreSQL Driver
+- bStats (metrics)
+- SLF4J (logging)
+- Gson (JSON)
 
-### Project Structure
+All shaded and relocated to avoid conflicts.
 
-```
-src/main/java/me/yourname/burzhuy/
-├── BurzhuyPlugin.java          # Main plugin class
-├── scheduler/
-│   └── SchedulerAdapter.java   # Folia compatibility layer
-├── utils/
-│   └── MessageManager.java     # Message handling
-├── data/
-│   ├── BuyerData.java          # Player data model
-│   └── BuyerDataManager.java   # Data persistence
-├── economy/
-│   └── EconomyManager.java     # Vault integration
-├── items/
-│   ├── ItemPrice.java          # Item price model
-│   └── ItemPriceManager.java   # Price management
-├── menu/
-│   ├── BuyerMenu.java          # Main buyer interface
-│   ├── SlotUpgradeMenu.java    # Upgrade interface
-│   └── MultiplierQuestMenu.java # Quest interface
-└── quest/
-    ├── QuestType.java           # Quest types enum
-    ├── MultiplierQuest.java     # Quest model
-    ├── MultiplierQuestPool.java # Quest loading
-    ├── MultiplierQuestUtil.java # Quest utilities
-    └── MultiplierQuestListener.java # Quest event handling
-```
+## Testing Checklist
 
-## Migration from v1.x
-
-1. Backup your `playerdata.yml`
-2. Install v2.0.0
-3. Old player data will be automatically migrated
-4. Update any custom configurations
-5. Translate `messages.yml` if needed
+- [ ] Regular currency transfer works
+- [ ] Donate currency requires 3 confirmations
+- [ ] Confirmation expires after 30 seconds
+- [ ] Cooldown prevents spam
+- [ ] MySQL saves/loads correctly
+- [ ] baltop updates and caches
+- [ ] PlaceholderAPI works
+- [ ] Vault compatibility maintained
+- [ ] Migration imports data correctly
+- [ ] Discord webhook sends notifications
 
 ## Support
 
-For issues, suggestions, or contributions:
-- Create an issue on GitHub
-- Join our Discord server
-- Contact the development team
+This is a comprehensive foundation. You have:
+- ✅ Multi-currency system
+- ✅ Confirmation system
+- ✅ Full configuration structure
+- ✅ All dependencies configured
+- ⚠️ Need to implement storage, commands, and integrations
 
-## License
-
-This plugin is released under the MIT License. See LICENSE file for details.
-
-## Credits
-
-- **Author**: BohdanStepantsov
-- **Version**: 2.0.0
-- **API**: 1.21
-- **Compatible with**: Paper & Folia
-
-## Changelog
-
-### v2.0.0 (Current)
-- Full Folia support with automatic detection
-- Complete English localization
-- Message system with `messages.yml`
-- Updated to Minecraft 1.21 API
-- Improved error handling
-- Code refactoring and optimization
-- Better documentation
-
-### v1.0.0
-- Initial release
-- Basic buyer system
-- Quest mechanics
-- Russian language only
+Estimated remaining work: 15-20 hours for a solo developer.

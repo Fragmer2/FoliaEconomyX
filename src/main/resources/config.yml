@@ -1,0 +1,233 @@
+# FoliaEconomyX v2.0 Configuration
+
+# Storage Settings
+storage:
+  # Type: yaml, mysql, postgresql
+  type: yaml
+  
+  # MySQL/PostgreSQL Settings
+  mysql:
+    host: localhost
+    port: 3306
+    database: foliaeconomyx
+    username: root
+    password: password
+    # Connection pool settings
+    pool:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  
+  postgresql:
+    host: localhost
+    port: 5432
+    database: foliaeconomyx
+    username: postgres
+    password: password
+    pool:
+      maximum-pool-size: 10
+      minimum-idle: 2
+  
+  # Auto-save interval in seconds (300 = 5 minutes)
+  auto-save-interval: 300
+  
+  # Backup settings (YAML only)
+  backups:
+    enabled: true
+    max-backups: 5
+
+# Multi-Currency System
+currencies:
+  # Default currency (used by Vault and when currency not specified)
+  default: dollars
+  
+  # Regular Currencies (can be earned and transferred freely)
+  regular:
+    dollars:
+      enabled: true
+      symbol: "$"
+      name-singular: "Dollar"
+      name-plural: "Dollars"
+      format: "$%amount%"
+      decimal-places: 2
+      starting-balance: 1000.0
+      max-balance: 1000000000.0
+      allow-negative: false
+      allow-transfer: true
+      require-confirmation: 0
+      
+    gold:
+      enabled: false
+      symbol: "⚜"
+      name-singular: "Gold Coin"
+      name-plural: "Gold Coins"
+      format: "⚜%amount%"
+      decimal-places: 0
+      starting-balance: 0.0
+      max-balance: 100000.0
+      allow-negative: false
+      allow-transfer: true
+      require-confirmation: 0
+  
+  # Donate Currencies (premium, limited transfer)
+  donate:
+    gems:
+      enabled: false
+      symbol: "💎"
+      name-singular: "Gem"
+      name-plural: "Gems"
+      format: "💎%amount%"
+      decimal-places: 0
+      starting-balance: 0.0
+      max-balance: -1  # unlimited
+      allow-negative: false
+      allow-transfer: true  # can transfer with confirmations
+      require-confirmation: 3  # 3 confirmations needed
+      confirmation-timeout: 30  # seconds between confirmations
+      # Minimum amount to require confirmation
+      confirmation-threshold: 10
+      # Cooldown between transfers (seconds)
+      transfer-cooldown: 300
+      
+    crystals:
+      enabled: true
+      symbol: "🔮"
+      name-singular: "Crystal"
+      name-plural: "Crystals"
+      format: "🔮%amount%"
+      decimal-places: 2
+      starting-balance: 0.0
+      max-balance: -1
+      allow-negative: false
+      allow-transfer: true
+      require-confirmation: 3
+      confirmation-timeout: 30
+      confirmation-threshold: 5
+      transfer-cooldown: 300
+
+# Donate Currency Protection
+donate-protection:
+  # Log all donate transfers to file
+  log-to-file: true
+  log-file: "donate_transfers.log"
+  
+  # Discord webhook notifications
+  discord-webhook:
+    enabled: false
+    url: "https://discord.com/api/webhooks/YOUR_WEBHOOK_HERE"
+    notify-on-transfer: true
+    minimum-amount: 100  # only notify for transfers >= this amount
+    
+  # Custom confirmation messages
+  confirmation-messages:
+    level-1: "&c⚠️ WARNING! You are transferring DONATE currency!"
+    level-2: "&c⚠️ Are you ABSOLUTELY SURE? This is premium currency!"
+    level-3: "&c⚠️⚠️ LAST WARNING! You CANNOT undo this transaction!"
+
+# Group-based limits (requires LuckPerms)
+group-limits:
+  enabled: false
+  limits:
+    default:
+      dollars:
+        max-balance: 1000000
+      gems:
+        max-balance: 1000
+    vip:
+      dollars:
+        max-balance: 10000000
+      gems:
+        max-balance: 5000
+    admin:
+      dollars:
+        max-balance: -1  # unlimited
+      gems:
+        max-balance: -1
+
+# Transaction Settings
+transactions:
+  # Log all transactions to database
+  log-transactions: true
+  
+  # Keep transaction history for X days
+  history-retention-days: 90
+  
+  # Rate limiting (anti-spam)
+  rate-limit:
+    enabled: true
+    max-transfers-per-minute: 10
+    max-transfers-per-hour: 100
+
+# baltop Settings
+baltop:
+  # Cache duration in seconds
+  cache-duration: 300
+  
+  # Players per page
+  players-per-page: 10
+  
+  # Update interval in seconds
+  update-interval: 60
+
+# PlaceholderAPI Settings
+placeholders:
+  # Number formatting
+  format-large-numbers: true  # 1000000 -> 1M
+  decimal-places: 2
+
+# Performance Settings
+performance:
+  # Enable async operations where possible
+  async-operations: true
+  
+  # Cache player balances
+  enable-cache: true
+  cache-size: 1000
+  
+  # Cache player names for offline lookup
+  name-cache-size: 5000
+
+# Logging
+logging:
+  # Log level: INFO, WARNING, SEVERE
+  level: INFO
+  
+  # Log transaction details
+  log-transactions: true
+  
+  # Debug mode (verbose logging)
+  debug: false
+
+# Update Checker
+update-checker:
+  enabled: true
+  notify-admins: true
+  check-interval: 3600  # seconds
+
+# bStats Metrics
+metrics:
+  enabled: true
+
+# Migration Settings
+migration:
+  # Backup before migration
+  create-backup: true
+  
+  # Supported plugins
+  essentials:
+    enabled: true
+    data-file: "plugins/Essentials/userdata"
+  
+  cmi:
+    enabled: true
+    data-file: "plugins/CMI/Users"
+    
+  playerpoints:
+    enabled: true
+    database: true
+
+# Language
+language: en_US
+# Available: en_US, ru_RU, es_ES, de_DE, fr_FR
